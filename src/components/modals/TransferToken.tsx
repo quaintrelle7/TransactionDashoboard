@@ -47,21 +47,22 @@ const TransferToken: React.FC<TokenProps> = ({ tokenAddress }) => {
 
         let resolvedAddress;
 
-        const tokenContract = web3js.eth.contract(tokenAbi).at(tokenAddress);
+        const tokenContract = new web3js.eth.Contract(tokenAbi, tokenAddress)
+        const tokenAmountInWei: number = web3js.utils.toWei(tokenAmount, 'ether');
 
 
         try {
 
             resolvedAddress = await ResolverContract.methods.resolver(inputAddress).call();
-            await tokenContract.transfer(resolvedAddress, tokenAmount).send({ from: account });
+            await tokenContract.methods.transfer(resolvedAddress, tokenAmountInWei).send({ from: account });
+            console.log("resolvedAddress: ", resolvedAddress);
+            setShowSuccessMessage(true);
 
         } catch (err) {
             setShowFailureMessage(true);
-            setError("An unknown error occurred!")
+            setError("An unknown error occurred, please try once again!")
+            console.log(err);
         }
-
-        setShowFailureMessage(true);
-        setError("Need 75% Votes to update wallet address")!;
 
     }
 
@@ -77,24 +78,27 @@ const TransferToken: React.FC<TokenProps> = ({ tokenAddress }) => {
                 <ModalOverlay />
 
                 <ModalContent>
-                    <Flex bg="brand.100" color={"white"} justifyContent={"center"} p={5} >
+                    <Flex bg="#6f1ab6" color={"white"} justifyContent={"center"} p={5} >
                         <Heading fontSize={25}>Transfer Tokens</Heading>
                     </Flex>
                     <ModalCloseButton color={"white"} />
-                    <ModalBody pb={6} px={5} width={"100%"}>
-                        <Box p={1} mt={5} width={"100%"} >
-                            <form onSubmit={handleTokenTransfer} style={{ width: "100%", fontSize: "15px" }}>
+                    <ModalBody pb={6} px={5} width={"100%"} bg="white" color={"black"}>
+                        <Box p={1} mt={5} width={"100%"} bg="white" color={"black"} >
+                            <form onSubmit={handleTokenTransfer} style={{ width: "100%", fontSize: "15px", color: "black" }}>
 
                                 <FormLabel fontWeight={800}>Wallet Address to send tokens</FormLabel>
-                                <input className="input-adel"
+                                <input
+                                    style={{ color: "black", backgroundColor: "white" }}
+                                    className="input-adel"
                                     placeholder="Enter the wallet address"
                                     type="text"
                                     name="inputaddress"
                                     value={inputAddress}
                                     onChange={(e) => setInputAddress(e.target.value)}
                                     required></input>
-                                <FormLabel fontWeight={800}>Token Amount</FormLabel>
+                                <FormLabel fontWeight={800}>Token Amount in Eth</FormLabel>
                                 <input className="input-adel"
+                                    style={{ color: "black", backgroundColor: "white" }}
                                     placeholder="Enter the token amount"
                                     type="text"
                                     name="tokenAmount"
@@ -103,7 +107,7 @@ const TransferToken: React.FC<TokenProps> = ({ tokenAddress }) => {
                                     required></input>
 
 
-                                <button className="submit-btn" type="submit">Vote</button>
+                                <button className="submit-btn" type="submit">Send</button>
                                 <button style={{ backgroundColor: "red", marginLeft: "20px" }} className="submit-btn" onClick={onClose}>Cancel</button>
                             </form>
                         </Box>
