@@ -1,4 +1,4 @@
-import { CheckCircleIcon, SettingsIcon } from '@chakra-ui/icons';
+import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Heading, VStack, List, ListIcon, ListItem } from '@chakra-ui/react';
 
 const Home = () => {
